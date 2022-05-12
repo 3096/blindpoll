@@ -210,14 +210,16 @@ router.post('/vote', async (req, res) => {
             return res.sendStatus(401);
         }
 
+        const publicKeySigParsed = new BigInteger(publicKeySig).toString();
+
         // check if publicKeySig is already used
-        if (poll.usedPublicKeySigs.indexOf(publicKeySig) !== -1) {
+        if (poll.usedPublicKeySigs.indexOf(publicKeySigParsed) !== -1) {
             return res.sendStatus(403);
         }
 
         // verify the publicKey signature
         if (blindSignatures.verify2({
-            unblinded: new BigInteger(publicKeySig),
+            unblinded: new BigInteger(publicKeySigParsed),
             key: { keyPair: { n: new BigInteger(poll.key.n), d: new BigInteger(poll.key.d), e: poll.key.e } },
             message: publicKey
         }) === false) {
@@ -231,7 +233,7 @@ router.post('/vote', async (req, res) => {
         }
 
         // add the publicKeySig to the list of used publicKeySigs
-        poll.usedPublicKeySigs.push(publicKeySig);
+        poll.usedPublicKeySigs.push(publicKeySigParsed);
         // if (poll.usedPublicKeySigs.length === poll.accessTokens.length) {
         //     poll.ended = true;
         // }
