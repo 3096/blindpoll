@@ -1,0 +1,21 @@
+version: '3.9'
+services:
+  blindpoll-server:
+    image: node:18-alpine
+    depends_on:
+      - mongo
+    restart: always
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - 127.0.0.1:20882:3001
+      - 127.0.0.1:20883:3002
+    environment:
+      DB_URI: "mongodb://mongo:27017/blindpoll"
+      API_ROUTE: "/api"
+      WS_ROUTE: "/ws"
+    command: npm run dist:start
+  mongo:
+    image: mongo
+    restart: always
